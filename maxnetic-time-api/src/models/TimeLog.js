@@ -6,7 +6,7 @@ const timeLogSchema = new mongoose.Schema({
   date: { type: String, required: true }, // เก็บวันที่เพียวๆ เช่น '2026-04-24' เพื่อให้ค้นหาง่าย
   clockInTime: { type: Date, required: true }, // เวลาเข้างาน
   clockOutTime: { type: Date }, // เวลาออกงาน (ตอนแรกจะยังว่างไว้)
-  clockInImage: { type: String, required: true }, // ลิ้งก์รูปถ่ายตอนเข้า
+  clockInImage: { type: String, default: '' }, // รูปถ่ายตอนเข้า (ไม่บังคับ)
   clockOutImage: { type: String }, // ลิ้งก์รูปถ่ายตอนออก
   remark: { type: String }, // หมายเหตุ เช่น "สาย(ยางรถแตก)" เหมือนใน Excel ของคุณเบียร์
 }, { timestamps: true });

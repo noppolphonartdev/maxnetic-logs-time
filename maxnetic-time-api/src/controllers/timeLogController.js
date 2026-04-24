@@ -5,14 +5,14 @@ const { getDistance } = require('../utils/geo');
 
 exports.clockIn = async (req, res) => {
   try {
-    const { userId, siteId, userLat, userLng, clockInImage, remark } = req.body;
+    const { userId, siteId, lat, lng, image, remark } = req.body;
 
     // 1. ดึงข้อมูลไซต์งานเพื่อเอาพิกัดและรัศมีมาเช็ค
     const site = await Site.findById(siteId);
     if (!site) return res.status(404).json({ message: 'ไม่พบไซต์งานนี้ในระบบ' });
 
     // 2. คำนวณระยะทางระหว่างพนักงาน กับ ไซต์งาน
-    const distance = getDistance(userLat, userLng, site.location.lat, site.location.lng);
+    const distance = getDistance(lat, lng, site.location.lat, site.location.lng);
 
     // 3. ตรวจสอบว่าอยู่ในรัศมีที่กำหนดหรือไม่
     if (distance > site.radius) {
@@ -32,7 +32,7 @@ exports.clockIn = async (req, res) => {
       site: siteId,
       date: dateString,
       clockInTime: today,
-      clockInImage: clockInImage || "no-image-url", // ชั่วคราวไปก่อน ตอนทำหน้าเว็บเราค่อยส่งไฟล์รูปมา
+      clockInImage: image || "", // รูปไม่บังคับ
       remark: remark || ""
     });
 
@@ -85,14 +85,14 @@ exports.checkTodayStatus = async (req, res) => {
 // API: สแกนออกงาน
 exports.clockOut = async (req, res) => {
   try {
-    const { logId, userLat, userLng, clockOutImage } = req.body;
+    const { logId, lat, lng, image } = req.body;
 
     // หาประวัติการลงเวลาของเช้านี้
     const log = await TimeLog.findById(logId).populate('site');
     if (!log) return res.status(404).json({ message: 'ไม่พบประวัติการเข้างานของวันนี้' });
 
     // ตรวจสอบระยะพิกัด (ต้องกดออกงานในพื้นที่คลังเท่านั้น)
-    const distance = getDistance(userLat, userLng, log.site.location.lat, log.site.location.lng);
+    const distance = getDistance(lat, lng, log.site.location.lat, log.site.location.lng);
     if (distance > log.site.radius) {
       return res.status(400).json({ 
         message: `คุณอยู่นอกพื้นที่! (ห่างจากจุดสแกน ${Math.round(distance)} เมตร)` 
@@ -101,7 +101,7 @@ exports.clockOut = async (req, res) => {
 
     // อัปเดตเวลาออกงานและรูปภาพ
     log.clockOutTime = new Date();
-    log.clockOutImage = clockOutImage || "";
+    log.clockOutImage = image || "";
     
     await log.save();
     res.status(200).json({ message: 'บันทึกเวลาออกงานสำเร็จ!', distance: Math.round(distance) });
