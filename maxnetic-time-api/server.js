@@ -18,6 +18,14 @@ mongoose.connect(mongoURI)
   .catch((err) => console.error('❌ เชื่อมต่อ MongoDB ไม่สำเร็จ:', err));
 // ------------------------------------
 
+const siteRoutes = require('./src/routes/siteRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const timeLogRoutes = require('./src/routes/timeLogRoutes');
+
+app.use('/api/sites', siteRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/timelogs', timeLogRoutes);
+
 app.get('/', (req, res) => {
   res.send('Hello from Maxnetic Time API! ระบบหลังบ้านพร้อมทำงาน 🚀');
 });
